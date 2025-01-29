@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euler Path Problem Solver</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.21.1/dist/cytoscape.min.js"></script>
+    <style>
+        .question-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay-box {
+            background-color: #f5f5dc;
+            color: black;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .overlay-box h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="question-icon">
+        <i class="fa fa-question-circle" style="font-size: 48px; color: white; cursor: pointer;" onclick="showOverlay()"></i>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Euler Path Problem Solver</h1>
+            <div class="subtitle">Eulerian Path is a path in a graph that visits every edge exactly once.</div>
+        </header>
+        <main>
+            <!-- Add progress circle here -->
+            <div class="progress-circle" id="progress-circle" style="--progress: 0;">
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="controls">
+                <label for="difficulty">Select Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <button id="fetch-problem">Get Problem</button>     
+            </div>
+            <div id="problem-section" class="hidden">
+                <h2>Problem Description</h2>
+                <p id="problem-description"></p>
+                <h3>Graph Visualization</h3>
+                <div id="graph-container" style="width: 100%; height: 400px;"></div>
+                <label for="solution-input">Enter Your Solution:</label>
+                <input type="text" id="solution-input" placeholder="e.g., A,B,C,D,A">
+                <button id="submit-solution">Submit Solution</button>
+                <p id="result-message"></p>
+                <button id="new-problem">Try Another Problem</button>
+            </div>
+        </main>
+    </div>
+
+    <div class="navigate">
+        <button class="button navlink">
+            <a title="Click to go back to home page" class="navlink" href="../../navigate.html">Home Page</a>
+        </button>
+    </div>
+
+    <!-- Help Overlay -->
+    <div class="overlay" id="helpOverlay" onclick="hideOverlay(event)">
+        <div class="overlay-box" onclick="event.stopPropagation()">
+            <h2>How to Play the Euler Path Problem Solver</h2>
+            <p>
+                <strong>Objective:</strong> Find an Eulerian path that visits every edge exactly once.
+            </p>
+            <p><strong>Steps to Play:</strong></p>
+            <ul>
+                <li>
+                    <strong>Select Difficulty:</strong> Choose a difficulty level from the dropdown.
+                </li>
+                <li>
+                    <strong>Get a Problem:</strong> Click "Get Problem" to generate a new Eulerian path problem.
+                </li>
+                <li>
+                    <strong>Analyze the Graph:</strong> Look at the given graph visualization.
+                </li>
+                <li>
+                    <strong>Enter Your Solution:</strong> Provide a path covering all edges exactly once.
+                </li>
+                <li>
+                    <strong>Submit Answer:</strong> Click "Submit Solution" to check if your answer is correct.
+                </li>
+                <li>
+                    <strong>Try Another:</strong> Click "Try Another Problem" to generate a new challenge.
+                </li>
+            </ul>
+            <p><strong>Tips:</strong></p>
+            <ul>
+                <li>
+                    An Eulerian path exists if a graph has 0 or 2 vertices with an odd degree.
+                </li>
+                <li>
+                    If all vertices have even degrees, an Eulerian circuit exists.
+                </li>
+                <li>
+                    Use trial and error to find the correct path!
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showOverlay() {
+            document.getElementById("helpOverlay").style.display = "flex";
+        }
+
+        function hideOverlay(event) {
+            if (event.target.id === "helpOverlay") {
+                document.getElementById("helpOverlay").style.display = "none";
+            }
+        }
+    </script>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
+

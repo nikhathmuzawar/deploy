@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graphos</title>
+    <style>
+      body {
+        font-family: Garamond, serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #7d9a6b;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        border-radius: 15px;
+        background-color: white;
+        padding: 40px;
+        background: #3e4c35;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        border: 3px solid white; /* Added border with white color */
+      }
+
+      h1 {
+        font-size: 3rem;
+        color: #fff;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      }
+
+      p {
+        font-size: 1.5rem;
+        color: #f0e6d2;
+        margin: 20px 0;
+      }
+      .highlight {
+        color: #ff9800;
+        font-weight: bold;
+      }
+      .join-btn {
+        font-size: 1.5rem;
+        padding: 15px 30px;
+        background: #703200;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+      .join-btn:hover {
+        transform: scale(1.1);
+        background: #5a2800;
+      }
+      .image-container {
+        margin-top: 20px;
+      }
+      .image-container img {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Graphos</h1>
+
+      <p>
+        Enhancing your learning of
+        <span class="highlight">Graphs</span> through an engaging gameplay
+        experience.
+      </p>
+      <a href="/static/login.html">
+        <button class="join-btn">Get Started</button>
+      </a>
+
+      <div class="image-container">
+        <img src="/static/mainpic.png" alt="Graphos Visual" />
+      </div>
+    </div>
+  </body>
+</html>

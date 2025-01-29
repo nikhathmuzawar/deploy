@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Isomorphism Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background: linear-gradient(90deg, rgba(125, 154, 107, 1) 0%, rgba(125, 154, 107, 1) 100%);
+            color: #333;
+            
+        }
+        .question-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    z-index: 1001; /* Increased z-index to ensure it's above the overlay */
+    color: white;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000; /* Ensure the overlay stays below the icon */
+    justify-content: center;
+    align-items: center;
+}
+
+        .overlay-box {
+            background-color: #f5f5dc;
+            color: black;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .overlay-box h2 {
+            margin-top: 0;
+        }
+
+        .problem-area {
+            padding: 10px;
+            margin: 10px auto;
+            width: 80vw;
+            border-radius: 10px;
+            background-color: #3e4c35;
+            border: 1.5px solid var(--textcolor);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown {
+            padding: 10px 25px 10px 25px;
+            border-radius: 5px;
+            border: none;
+            font-size: 14px;
+            background-color: white;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .navlink{
+  text-decoration: none ;
+  color: white;   
+  margin-bottom: 10px;
+}
+
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 2px solid #333;
+            border-radius: 8px;
+            margin: 10px;
+            background-color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #A5622D;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            position: relative;
+        }
+        button:hover {
+            background-color: #8c4f26;
+        }
+        .question-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    z-index: 100;
+    color: white; /* Ensure the icon color is set */
+}
+
+        .mapping-container {
+            margin: 20px auto; /* Centers the box horizontally */
+            padding: 20px; /* Add some spacing inside the box */
+            background-color: black;
+            color: white;
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 50%; /* Medium-sized width */
+            max-width: 500px; /* Limit the max width for large screens */
+            text-align: center; /* Align text inside the box */
+            position: relative; /* Required for centering */
+            top: 20px; /* Add spacing from the graphs */
+        }
+        .submitMapping {
+            padding: 10px 20px;
+            background-color: dark brown;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            display: block; /* Ensures it's treated as a block element for centering */
+        }
+        .submit-container {
+            display: flex;
+            justify-content: center; /* Center the button horizontally */
+            width: 100%; /* Full width for centering */
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            font-size: 16px;
+            color: white;
+        }
+        select {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            width: 300px;
+        }
+        .feedback-modal p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .modal-buttons button {
+            flex: 1;
+            margin: 0 5px;
+            font-size: 14px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .question-number {
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .sort-container {
+            margin-bottom: 20px;
+        }
+        .progress-circle {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accentcolor, #A5622D) calc(var(--progress, 0) * 1%), var(--bgcolor, #333) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    border: 4px solid #fff; /* Ensure there's a visible border */
+}
+
+.progress-circle::before {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--bgcolor, #333);
+}
+
+.progress-circle span {
+    position: relative;
+    font-size: 18px;
+    color: var(--textcolor, white);
+    z-index: 1;
+}
+
+    </style>
+</head>
+<body>
+    <h1>Graph Isomorphism Game</h1>
+    <div class="progress-circle" id="progress-circle" style="--progress: 0;">
+        <span id="progress-text">0%</span>
+    </div>
+    <div class="question-icon">
+        <i class="fa fa-question-circle" style="font-size: 48px; color: white" onclick="showOverlay()"></i>
+    </div>
+    <div class="overlay" id="helpOverlay" onclick="hideOverlay(event)">
+        <div class="overlay-box" onclick="event.stopPropagation()">
+            <h2>How to Play the Graph Isomorphism Game</h2>
+            <p><strong>Objective:</strong> Determine if two given graphs are isomorphic to each other.</p>
+            <p><strong>Steps to Play:</strong></p>
+            <ul>
+                <li><strong>Observe the Graphs:</strong> Look at both graphs displayed on the screen.</li>
+                <li><strong>Choose Difficulty:</strong> Select your preferred difficulty level from the dropdown menu.</li>
+                <li><strong>Make a Decision:</strong> Click either "Declare Isomorphic" or "Declare Not Isomorphic".</li>
+                <li><strong>If Isomorphic:</strong> Provide the vertex mapping between the two graphs.</li>
+                <li><strong>Submit:</strong> Click submit to check your answer.</li>
+            </ul>
+            <p><strong>Tips:</strong></p>
+            <ul>
+                <li>Check the number of vertices and edges in both graphs.</li>
+                <li>Compare the degree sequences of both graphs.</li>
+                <li>Look for similar structural patterns.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="sort-container">
+        <label for="difficulty">Sort Questions by Difficulty: </label>
+        <select id="difficulty">
+            <option value="all">All</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+    </div>
+    <div class="question-number" id="questionNumber"></div>
+    <div>
+        <canvas id="graph1" width="300" height="300"></canvas>
+        <canvas id="graph2" width="300" height="300"></canvas>
+    </div>
+    <div class="mapping-container" id="mappingContainer" style="display: none;"></div>
+    <button id="declareIsomorphic">Declare Isomorphic</button>
+    <button id="declareNotIsomorphic">Declare Not Isomorphic</button>
+    <div class="submit-container">
+        <button id="submitMapping">Submit Mapping</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="feedback-modal" id="feedbackModal">
+        <p id="feedbackMessage"></p>
+        <div class="modal-buttons">
+            <button id="nextOrSkipQuestion">Next Question</button>
+            <button id="retryQuestion">Retry</button>
+        </div>
+    </div>
+    <div class="navigate">
+        <button class="button btn navlink"><a title="Click to go back to home page" class="navlink" href="../navigate.html">Home
+            Page</a></button>
+      </div>
+
+    <script>
+
+    const questions = [
+        {
+            graph1: [
+                [0, 1, 0],
+                [1, 0, 1],
+                [0, 1, 0],
+            ],
+            graph2: [
+                [0, 1, 0],
+                [1, 0, 1],
+                [0, 1, 0],
+            ],
+            isIsomorphic: true,
+            difficulty: "easy",
+        },
+        {
+            graph1: [
+                [0, 1, 0],
+                [1, 0, 0],
+                [0, 0, 0],
+            ],
+            graph2: [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ],
+            isIsomorphic: false,
+            difficulty: "easy",
+        },
+        {
+            graph1: [
+                [0, 1, 1, 0],
+                [1, 0, 0, 1],
+                [1, 0, 0, 1],
+                [0, 1, 1, 0],
+            ],
+            graph2: [
+                [0, 1, 0, 1],
+                [1, 0, 1, 0],
+                [0, 1, 0, 1],
+                [1, 0, 1, 0],
+            ],
+            isIsomorphic: true,
+            difficulty: "medium",
+        },
+        {
+            graph1: [
+                [0, 1, 1],
+                [1, 0, 1],
+                [1, 1, 0],
+            ],
+            graph2: [
+                [0, 1, 1],
+                [1, 0, 1],
+                [1, 1, 0],
+            ],
+            isIsomorphic: true,
+            difficulty: "medium",
+        },
+        {
+            graph1: [
+                [0, 1, 1, 1],
+                [1, 0, 1, 1],
+                [1, 1, 0, 1],
+                [1, 1, 1, 0],
+            ],
+            graph2: [
+                [0, 1, 1, 1],
+                [1, 0, 1, 1],
+                [1, 1, 0, 1],
+                [1, 1, 1, 0],
+            ],
+            isIsomorphic: true,
+            difficulty: "hard",
+        },
+    ];
+
+    let currentQuestionIndex = 0;
+    let filteredQuestions = questions;
+    const graph1Canvas = document.getElementById("graph1");
+    const graph2Canvas = document.getElementById("graph2");
+    const ctx1 = graph1Canvas.getContext("2d");
+    const ctx2 = graph2Canvas.getContext("2d");
+
+    const questionNumberElement = document.getElementById("questionNumber");
+    const mappingContainer = document.getElementById("mappingContainer");
+    const feedbackModal = document.getElementById("feedbackModal");
+    const feedbackMessage = document.getElementById("feedbackMessage");
+    const overlay = document.getElementById("overlay");
+    const declareIsomorphicButton = document.getElementById("declareIsomorphic");
+    const declareNotIsomorphicButton = document.getElementById("declareNotIsomorphic");
+    const submitMappingButton = document.getElementById("submitMapping");
+    const nextOrSkipQuestionButton = document.getElementById("nextOrSkipQuestion");
+    const retryQuestionButton = document.getElementById("retryQuestion");
+    const difficultySelector = document.getElementById("difficulty");
+    let progress = { easy: false, medium: false, hard: false };
+
+    function renderGraph(ctx, graph) {
+        ctx.clearRect(0, 0, 300, 300); // Clear the previous drawing
+        const n = graph.length;
+        const radius = 120;
+        const centerX = 150;
+        const centerY = 150;
+        const angleStep = (2 * Math.PI) / n;
+
+        // Draw nodes
+        for (let i = 0; i < n; i++) {
+            const x = centerX + radius * Math.cos(i * angleStep);
+            const y = centerY + radius * Math.sin(i * angleStep);
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, 2 * Math.PI);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.stroke();
+
+            // Label the nodes
+            ctx.fillStyle = "white";
+            ctx.font = "14px Arial";
+            ctx.fillText(i + 1, x - 8, y - 15); // Adjust the positioning for better visibility
+        }
+
+        // Draw edges
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                if (graph[i][j] === 1) {
+                    const x1 = centerX + radius * Math.cos(i * angleStep);
+                    const y1 = centerY + radius * Math.sin(i * angleStep);
+                    const x2 = centerX + radius * Math.cos(j * angleStep);
+                    const y2 = centerY + radius * Math.sin(j * angleStep);
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = "white";
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+    function showOverlay() {
+            document.getElementById("helpOverlay").style.display = "flex";
+        }
+
+        function hideOverlay(event) {
+            if (event.target.id === "helpOverlay") {
+                document.getElementById("helpOverlay").style.display = "none";
+            }
+        }
+    function loadQuestion() {
+        const question = filteredQuestions[currentQuestionIndex];
+        renderGraph(ctx1, question.graph1);
+        renderGraph(ctx2, question.graph2);
+        mappingContainer.innerHTML = "";
+        feedbackModal.style.display = "none";
+        overlay.style.display = "none";
+        submitMappingButton.style.display = "none";
+        mappingContainer.style.display = "none"; // Hide the mapping block initially
+    }
+
+    declareIsomorphicButton.addEventListener("click", () => {
+        const question = filteredQuestions[currentQuestionIndex];
+        mappingContainer.innerHTML = "";
+
+        if (question.isIsomorphic) {
+            for (let i = 0; i < question.graph1.length; i++) {
+                const label = document.createElement("label");
+                label.textContent = `Map vertex ${i + 1} of Graph 1 to: `;
+                const dropdown = document.createElement("select");
+                dropdown.dataset.vertex = i;
+                for (let j = 0; j < question.graph2.length; j++) {
+                    const option = document.createElement("option");
+                    option.value = j + 1;
+                    option.textContent = `Vertex ${j + 1}`;
+                    dropdown.appendChild(option);
+                }
+                label.appendChild(dropdown);
+                mappingContainer.appendChild(label);
+            }
+            mappingContainer.style.display = "block";
+            submitMappingButton.style.display = "block";
+        }
+    });
+
+    declareNotIsomorphicButton.addEventListener("click", () => {
+        const question = filteredQuestions[currentQuestionIndex];
+        if (!question.isIsomorphic) {
+            feedbackMessage.textContent = "Correct! These graphs are not isomorphic.";
+            feedbackMessage.style.color = "green";
+            nextOrSkipQuestionButton.textContent = "Next Question";
+        } else {
+            feedbackMessage.textContent = "Incorrect! These graphs are actually isomorphic.";
+            feedbackMessage.style.color = "red";
+            nextOrSkipQuestionButton.textContent = "Skip Question";
+        }
+        overlay.style.display = "block";
+        feedbackModal.style.display = "block";
+    });
+
+    submitMappingButton.addEventListener("click", () => {
+        const question = filteredQuestions[currentQuestionIndex];
+        const userMapping = Array.from(mappingContainer.querySelectorAll("select")).map(
+            (dropdown) => ({ from: parseInt(dropdown.dataset.vertex, 10), to: parseInt(dropdown.value, 10) })
+        );
+
+        if (verifyMapping(question.graph1, question.graph2, userMapping)) {
+            feedbackMessage.textContent = "Correct! These graphs are isomorphic.";
+            feedbackMessage.style.color = "green";
+            nextOrSkipQuestionButton.textContent = "Next Question";
+        } else {
+            feedbackMessage.textContent = "Incorrect! Please retry.";
+            feedbackMessage.style.color = "red";
+            nextOrSkipQuestionButton.textContent = "Skip Question";
+        }
+        overlay.style.display = "block";
+        feedbackModal.style.display = "block";
+    });
+
+    difficultySelector.addEventListener("change", (event) => {
+    const selectedDifficulty = event.target.value;
+
+    if (selectedDifficulty === "all") {
+        filteredQuestions = questions;
+    } else {
+        filteredQuestions = questions.filter((q) => q.difficulty === selectedDifficulty);
+    }
+
+    // Reset the current question index if no questions match the selected difficulty
+    if (filteredQuestions.length === 0) {
+        alert("No questions available for the selected difficulty!");
+        filteredQuestions = questions;  // Show all questions if no match
+    } else {
+        currentQuestionIndex = 0;  // Start from the first question
+    }
+
+    loadQuestion(); // Load the filtered question set
+});
+
+// Initialize with the default filter applied
+loadQuestion();
+
+
+function verifyMapping(graph1, graph2, mapping) {
+    for (let i = 0; i < graph1.length; i++) {
+        for (let j = 0; j < graph1.length; j++) {
+            // Get the correct mappings for both vertices i and j
+            const mappedI = mapping.find((m) => m.from === i).to;
+            const mappedJ = mapping.find((m) => m.from === j).to;
+
+            // Check if the edges match, comparing the original graph and mapped graph
+            if (graph1[i][j] !== graph2[mappedI][mappedJ]) {
+                console.log(`Mismatch: graph1[${i}][${j}] = ${graph1[i][j]}, graph2[${mappedI}][${mappedJ}] = ${graph2[mappedI][mappedJ]}`);
+                return false; // Return false if the edge comparison fails
+            }
+        }
+    }
+    return true; // If all edges match, the mapping is correct
+}
+
+
+
+   // Create an array to track whether each question is completed or not
+let completedQuestions = Array(filteredQuestions.length).fill(false);
+
+nextOrSkipQuestionButton.addEventListener("click", () => {
+    overlay.style.display = "none";
+    feedbackModal.style.display = "none";
+
+    // Mark the current question as completed
+    const currentQuestion = filteredQuestions[currentQuestionIndex];
+    completedQuestions[currentQuestionIndex] = true; // Mark this specific question as completed
+
+    updateProgress();
+
+    if (currentQuestionIndex < filteredQuestions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+    } else {
+        alert("You've completed all the questions!");
+    }
+});
+
+function updateProgress() {
+    // Count completed questions
+    const completedCount = completedQuestions.filter(Boolean).length;
+
+    // Calculate the percentage
+    const progressPercentage = Math.round((completedCount / filteredQuestions.length) * 100);
+
+    // Update the progress circle
+    document.getElementById('progress-circle').style.setProperty('--progress', progressPercentage);
+
+    // Update the progress text
+    document.getElementById('progress-text').textContent = `${progressPercentage}%`;
+}
+
+
+    retryQuestionButton.addEventListener("click", () => {
+        overlay.style.display = "none";
+        feedbackModal.style.display = "none";
+        loadQuestion();
+        updateProgress();
+    });
+
+    // Initial question load
+    loadQuestion();
+</script>
+
+    
+</body>
+</html>

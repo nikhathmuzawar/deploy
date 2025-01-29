@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <title>Directed Graph - Difficulty Levels</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: linear-gradient(
+          90deg,
+          rgba(125, 154, 107, 1) 0%,
+          rgba(125, 154, 107, 1) 100%
+        );
+        padding: 20px;
+        color: white;
+      }
+
+      h2 {
+        color: #151515;
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #fff5f5;
+        margin-bottom: 20px;
+      }
+
+      .difficulty-selector {
+        margin-bottom: 20px;
+      }
+
+      .graph-box {
+        width: 300px;
+        height: 450px;
+        background: rgb(72, 72, 72);
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        border: 2px solid white; /* Added white border */
+      }
+
+      .container {
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #3e4c35;
+        border-radius: 15px;
+        width: 80%;
+        height: 500px;
+        max-width: 800px;
+        min-height: auto; /* Change this to allow dynamic shrinking */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .graph-container {
+        display: flex;
+        justify-content: center; /* Center aligns the graph boxes */
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .graph-box svg {
+        width: 100%;
+        height: 250px;
+      }
+
+      .input-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .input-box label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        text-align: center;
+      }
+
+      .input-box input {
+        width: 70px;
+        padding: 5px;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+
+      .submit-btn {
+        margin-top: 30px;
+        padding: 12px 25px;
+        font-size: 16px;
+        background-color: #a5622d;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+
+      .submit-btn:hover {
+        background: #2980b9;
+      }
+
+      .result-message {
+        margin-top: 20px;
+        font-size: 16px;
+        color: #ffffff;
+      }
+
+      .error {
+        color: #ffffff;
+      }
+
+      .node circle {
+        fill: #3498db;
+        stroke: #2980b9;
+        stroke-width: 2;
+      }
+
+      .node text {
+        font-size: 14px;
+        fill: white;
+        pointer-events: none;
+      }
+      .link {
+        stroke: white; /* Change arrow color */
+        stroke-width: 1px; /* Make arrow lines thicker */
+        marker-end: url(#arrow);
+      }
+      .question-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 100;
+        /* Ensure it's on top of other elements */
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .overlay-box {
+        background-color: #f5f5dc;
+        color: black;
+        width: 80%;
+        max-width: 600px;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: left;
+      }
+
+      .overlay-box h2 {
+        margin-top: 0;
+      }
+
+      .navigate {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .navlink {
+        text-decoration: none;
+        margin: 10px;
+        background-color: #a5622d;
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      .progress-circle {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: conic-gradient(
+          #a5622d calc(var(--progress) * 1%),
+          #3e4c35 0
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px auto;
+      }
+
+      .progress-circle::before {
+        content: "";
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #769165;
+      }
+
+      .progress-circle span {
+        position: relative;
+        font-size: 18px;
+        color: white;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="question-icon">
+      <i
+        class="fa fa-question-circle"
+        style="font-size: 48px; color: white"
+        onclick="showOverlay()"
+      ></i>
+    </div>
+
+    <div class="overlay" id="helpOverlay" onclick="hideOverlay(event)">
+      <div class="overlay-box" onclick="event.stopPropagation()">
+        <h2>How to Play the Directed Graph Game</h2>
+        <p>
+          <strong>Objective:</strong> Analyze the directed graph by determining
+          the in-degree and out-degree of each node.
+        </p>
+        <p><strong>Steps to Play:</strong></p>
+        <ul>
+          <li>
+            <strong>Select Difficulty:</strong> Choose a difficulty level (Easy,
+            Medium, or Hard). The complexity of the directed graph increases
+            with difficulty.
+          </li>
+          <li>
+            <strong>Analyze the Graph:</strong> Observe the displayed directed
+            graph. Each node has incoming and outgoing edges.
+          </li>
+          <li>
+            <strong>Calculate In-Degree & Out-Degree:</strong>
+            <ul>
+              <li>
+                <strong>In-degree:</strong> Count how many edges point 'toward'
+                a node.
+              </li>
+              <li>
+                <strong>Out-degree:</strong> Count how many edges point 'away'
+                from a node.
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Enter Your Answers:</strong> Input the in-degree and
+            out-degree for the nodes as prompted.
+          </li>
+          <li>
+            <strong>Submit Your Answer:</strong> Click the "Submit" button to
+            check your response.
+          </li>
+          <li>
+            <strong>Get Feedback:</strong> The system will tell you whether your
+            answer is correct or incorrect. Adjust your calculations if needed.
+          </li>
+        </ul>
+        <p><strong>Tips:</strong></p>
+        <ul>
+          <li>
+            Start by identifying nodes with no incoming edges (in-degree = 0).
+          </li>
+          <li>
+            Identify nodes with no outgoing edges (out-degree = 0), which are
+            typically end nodes.
+          </li>
+          <li>
+            For each node, carefully count the number of directed edges pointing
+            in and out.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <h1>Directed Graph Game</h1>
+    <div class="progress-circle" id="progress-circle" style="--progress: 0">
+      <span id="progress-text">0%</span>
+    </div>
+    <h1>Select Difficulty and Analyze the Directed Graph</h1>
+
+    <div class="difficulty-selector">
+      <label for="difficulty">Choose Difficulty:</label>
+      <select id="difficulty" onchange="loadGraphs()">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+    <div class="container">
+      <svg>
+        <defs>
+          <marker
+            id="arrow"
+            viewBox="0 -5 10 10"
+            refX="25"
+            refY="0"
+            markerWidth="12"
+            markerHeight="12"
+            orient="auto"
+          >
+            <path d="M0,-5L10,0L0,5" fill="white"></path>
+          </marker>
+        </defs>
+      </svg>
+
+      <div class="graph-container" id="graph-container"></div>
+    </div>
+
+    <!-- Submit buttons for each difficulty -->
+    <button
+      class="submit-btn"
+      id="submit-easy"
+      onclick="submitEasy()"
+      style="display: none"
+    >
+      Submit Easy
+    </button>
+    <button
+      class="submit-btn"
+      id="submit-medium"
+      onclick="submitMedium()"
+      style="display: none"
+    >
+      Submit Medium
+    </button>
+    <button
+      class="submit-btn"
+      id="submit-hard"
+      onclick="submitHard()"
+      style="display: none"
+    >
+      Submit Hard
+    </button>
+    <div class="navigate">
+      <button class="button navlink">
+        <a
+          title="Click to go back to home page"
+          class="navlink"
+          href="../navigate.html"
+          >Home Page</a
+        >
+      </button>
+    </div>
+
+    <div id="result" class="result-message"></div>
+
+    <script>
+      const graphSets = {
+        easy: [
+          { data: { A: ["B"], B: ["C"], C: [] } }, // Simple linear graph
+          { data: { 1: ["2", "3"], 2: [], 3: [] } }, // Simple linear graph
+        ],
+        medium: [
+          { data: { M: ["N", "O"], N: ["O"], O: ["M"] } }, // Cycle graph with more connections
+          { data: { P: ["Q"], Q: ["R"], R: ["P", "S"], S: [] } }, // More complex directed graph
+        ],
+        hard: [
+          { data: { X: ["Y", "Z"], Y: ["Z"], Z: ["X"], W: ["X", "Y"] } }, // Complex cycle and cross connections
+          { data: { D: ["F", "G"], F: ["G", "E"], G: ["E"], E: ["D"] } }, // Multiple cycles and complex interactions
+        ],
+      };
+
+      const correctAnswers = {
+        A: { indegree: 0, outdegree: 1 },
+        B: { indegree: 1, outdegree: 1 },
+        C: { indegree: 1, outdegree: 0 },
+        M: { indegree: 1, outdegree: 2 },
+        N: { indegree: 1, outdegree: 1 },
+        O: { indegree: 2, outdegree: 1 },
+        P: { indegree: 1, outdegree: 1 },
+        Q: { indegree: 1, outdegree: 1 },
+        R: { indegree: 1, outdegree: 2 },
+        S: { indegree: 1, outdegree: 0 },
+        W: { indegree: 0, outdegree: 2 },
+        1: { indegree: 0, outdegree: 2 },
+        2: { indegree: 1, outdegree: 0 },
+        3: { indegree: 1, outdegree: 0 },
+        X: { indegree: 2, outdegree: 2 },
+        Y: { indegree: 2, outdegree: 1 },
+        Z: { indegree: 2, outdegree: 1 },
+        D: { indegree: 1, outdegree: 2 },
+        F: { indegree: 1, outdegree: 2 },
+        G: { indegree: 2, outdegree: 1 },
+        E: { indegree: 2, outdegree: 1 },
+      };
+
+      let progress = { easy: false, medium: false, hard: false };
+
+      function updateProgress() {
+        const completed = Object.values(progress).filter(Boolean).length;
+        const progressPercentage = Math.round((completed / 3) * 100);
+        document
+          .getElementById("progress-circle")
+          .style.setProperty("--progress", progressPercentage);
+        document.getElementById(
+          "progress-text"
+        ).textContent = `${progressPercentage}%`;
+      }
+      function loadGraphs() {
+        const difficulty = document.getElementById("difficulty").value;
+        const container = document.getElementById("graph-container");
+        container.innerHTML = "";
+
+        // Hide all submit buttons first
+        document.getElementById("submit-easy").style.display = "none";
+        document.getElementById("submit-medium").style.display = "none";
+        document.getElementById("submit-hard").style.display = "none";
+
+        // Show submit button for the selected difficulty
+        if (difficulty === "easy") {
+          document.getElementById("submit-easy").style.display = "inline-block";
+        } else if (difficulty === "medium") {
+          document.getElementById("submit-medium").style.display =
+            "inline-block";
+        } else if (difficulty === "hard") {
+          document.getElementById("submit-hard").style.display = "inline-block";
+        }
+
+        // Clear previous graphs
+        graphSets[difficulty].forEach((graph, index) => {
+          const graphBox = document.createElement("div");
+          graphBox.className = "graph-box";
+
+          const graphDiv = document.createElement("div");
+          graphDiv.id = `graph${index + 1}`;
+          graphBox.appendChild(graphDiv);
+
+          const inputBox = document.createElement("div");
+          inputBox.id = `inputs${index + 1}`;
+          inputBox.className = "input-box";
+          graphBox.appendChild(inputBox);
+
+          container.appendChild(graphBox);
+
+          drawGraph(`#graph${index + 1}`, graph.data);
+          createInputs(`#inputs${index + 1}`, graph.data);
+        });
+      }
+
+      function drawGraph(container, graphData) {
+        const nodes = Object.keys(graphData).map((id) => ({ id }));
+        const links = Object.entries(graphData).flatMap(([source, targets]) =>
+          targets.map((target) => ({ source, target }))
+        );
+
+        const width = 300,
+          height = 250;
+        const svg = d3
+          .select(container)
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        svg
+          .append("defs")
+          .append("marker")
+          .attr("id", "arrow")
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 15)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5")
+          .attr("fill", "#fff"); // Change to white
+
+        const simulation = d3
+          .forceSimulation(nodes)
+          .force(
+            "link",
+            d3
+              .forceLink(links)
+              .id((d) => d.id)
+              .distance(80)
+          )
+          .force("charge", d3.forceManyBody().strength(-100))
+          .force("center", d3.forceCenter(width / 2, height / 2));
+
+        const link = svg
+          .selectAll(".link")
+          .data(links)
+          .enter()
+          .append("line")
+          .attr("class", "link")
+          .attr("marker-end", "url(#arrow)");
+
+        const node = svg
+          .selectAll(".node")
+          .data(nodes)
+          .enter()
+          .append("g")
+          .attr("class", "node")
+          .call(
+            d3
+              .drag()
+              .on("start", dragStart)
+              .on("drag", dragging)
+              .on("end", dragEnd)
+          );
+
+        node.append("circle").attr("r", 15);
+
+        node
+          .append("text")
+          .attr("dy", 5)
+          .attr("dx", -5)
+          .text((d) => d.id);
+
+        simulation.on("tick", () => {
+          link
+            .attr("x1", (d) => d.source.x)
+            .attr("y1", (d) => d.source.y)
+            .attr("x2", (d) => d.target.x)
+            .attr("y2", (d) => d.target.y);
+
+          node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+        });
+
+        function dragStart(event, d) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        }
+
+        function dragging(event, d) {
+          d.fx = event.x;
+          d.fy = event.y;
+        }
+
+        function dragEnd(event, d) {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }
+      }
+
+      function createInputs(inputContainer, graphData) {
+        const container = document.querySelector(inputContainer);
+        Object.keys(graphData).forEach((node) => {
+          const div = document.createElement("div");
+          div.innerHTML = ` 
+                    <label>${node}:</label>
+                    <input type="number" id="indegree-${node}" placeholder="In-degree">
+                    <input type="number" id="outdegree-${node}" placeholder="Out-degree">
+                `;
+          container.appendChild(div);
+        });
+      }
+      function submitAnswers(difficulty) {
+        const resultMessage = document.getElementById("result");
+        let userAnswers = [];
+        let isCorrect = true;
+
+        graphSets[difficulty].forEach((graph, index) => {
+          Object.keys(graph.data).forEach((node) => {
+            const userIndegree = parseInt(
+              document.getElementById(`indegree-${node}`).value || 0
+            );
+            const userOutdegree = parseInt(
+              document.getElementById(`outdegree-${node}`).value || 0
+            );
+
+            // Store answers to be sent to backend
+            userAnswers.push({
+              node,
+              indegree: userIndegree,
+              outdegree: userOutdegree,
+            });
+
+            // Compare with correct answers
+            if (
+              userIndegree !== correctAnswers[node].indegree ||
+              userOutdegree !== correctAnswers[node].outdegree
+            ) {
+              isCorrect = false;
+            }
+          });
+        });
+
+        // Display result message
+        if (isCorrect) {
+          resultMessage.textContent = `${
+            difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+          } Graph answers are correct! 🎉`;
+          resultMessage.classList.remove("error");
+          progress[difficulty] = true;
+          updateProgress();
+        } else {
+          resultMessage.textContent = `Some answers for ${
+            difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+          } Graph are incorrect. Please try again! ❌`;
+          resultMessage.classList.add("error");
+        }
+
+        // Send user answers to the backend
+        fetch("http://localhost:5000/submit-answers", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            difficulty: difficulty,
+            userAnswers: userAnswers,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data.message);
+          })
+          .catch((error) => {
+            console.error("Error submitting answers:", error);
+          });
+      }
+
+      function submitEasy() {
+        submitAnswers("easy");
+      }
+
+      function submitMedium() {
+        submitAnswers("medium");
+      }
+
+      function submitHard() {
+        submitAnswers("hard");
+      }
+
+      function showOverlay() {
+        document.getElementById("helpOverlay").style.display = "flex";
+      }
+
+      function hideOverlay(event) {
+        if (event.target.id === "helpOverlay") {
+          document.getElementById("helpOverlay").style.display = "none";
+        }
+      }
+
+      // Initial Load
+      loadGraphs();
+    </script>
+  </body>
+</html>

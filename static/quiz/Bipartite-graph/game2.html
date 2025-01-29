@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <title>Bipartite Graph Game</title>
+    <style>
+      :root {
+        --bgcolor: #7d9a6b;
+        --textcolor: #f5f5dc;
+        --accentcolor: #d97b30;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: #7d9a6b;
+        color: white;
+        /* Set text color to white for all fonts */
+        text-align: center;
+        padding: 20px;
+        margin: 0;
+        position: relative;
+      }
+
+      .container {
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #3e4c35;
+        border-radius: 15px;
+
+        width: 80%;
+        /* Set the width to 80% of the viewport for responsiveness */
+        max-width: 800px;
+        /* Limit the maximum width */
+        min-height: 200px;
+        /* Optional: Set a minimum height */
+        display: flex;
+        /* Enable Flexbox */
+        flex-direction: column;
+        /* Stack items vertically */
+        align-items: center;
+        /* Center items horizontally */
+        justify-content: center;
+        /* Center items vertically */
+      }
+
+      .graph-box {
+        border: 3px solid white;
+        /* Set the border color to white */
+        background-color: rgb(40, 40, 40);
+        /* Set the background color to black */
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 620px;
+        max-height: 450px;
+        text-align: center;
+      }
+
+      .h1 {
+        color: white;
+        font-family: "Franklin Gothic Medium", sans-serif;
+        text-align: center;
+      }
+
+      #submitAnswer {
+        background-color: #a5622d;
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      #resetButton {
+        background-color: #a5622d;
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      .controls {
+        margin: 20px;
+      }
+
+      canvas {
+        border: 1px solid black;
+        margin: 0;
+        padding: 0;
+      }
+
+      #feedback {
+        font-size: 18px;
+        color: #333;
+        margin-top: 10px;
+      }
+
+      input[type="color"],
+      select {
+        margin: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #graphControls {
+        position: absolute;
+        top: 50px;
+        left: 50px;
+        background-color: #e0e0e0;
+        padding: 10px;
+        border-radius: 10px;
+        width: 200px;
+        font-size: 14px;
+      }
+
+      .node {
+        transition: transform 0.3s ease-in-out, fill 0.3s ease-in-out;
+
+        /* Initial color for animated nodes */
+      }
+
+      .node.selected {
+        filter: drop-shadow(0 0 10px rgba(0, 150, 255, 0.8));
+      }
+
+      .edge {
+        stroke-dasharray: 5;
+        animation: drawEdge 5s ease-in-out forwards;
+
+        stroke: white;
+        /* Set the edge color to white */
+      }
+
+      @keyframes drawEdge {
+        from {
+          stroke-dashoffset: 50;
+        }
+
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .question-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 100;
+        /* Ensure it's on top of other elements */
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .overlay-box {
+        background-color: #f5f5dc;
+        color: black;
+        width: 80%;
+        max-width: 600px;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: left;
+      }
+
+      .overlay-box h2 {
+        margin-top: 0;
+      }
+
+      .navigate {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .navlink {
+        text-decoration: none;
+        margin: 10px;
+        background-color: #a5622d;
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      .progress-circle {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: conic-gradient(
+          #a5622d calc(var(--progress) * 1%),
+          #3e4c35 0
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px auto;
+      }
+
+      .progress-circle::before {
+        content: "";
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #769165;
+      }
+
+      .progress-circle span {
+        position: relative;
+        font-size: 18px;
+        color: white;
+        z-index: 1;
+      }
+
+      .button-container {
+        display: flex;
+        gap: 10px; /* Space between buttons */
+      }
+
+      button {
+        background-color: #a5622d;
+        color: white;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #8a4e23;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="question-icon">
+      <i
+        class="fa fa-question-circle"
+        style="font-size: 48px; color: white"
+        onclick="showOverlay()"
+      ></i>
+    </div>
+
+    <div class="overlay" id="helpOverlay" onclick="hideOverlay(event)">
+      <div class="overlay-box" onclick="event.stopPropagation()">
+        <h2>How to Play the Bipartite Graph Game</h2>
+        <p>
+          <strong>Objective:</strong> Determine if the given graph is bipartite
+          or not. A graph is bipartite if its nodes can be divided into two sets
+          such that no two nodes within the same set are connected by an edge.
+        </p>
+
+        <p><strong>Steps:</strong></p>
+        <ul>
+          <li>
+            <strong>Choose a Graph:</strong> Select a graph (Graph 1, 2, or 3).
+          </li>
+          <li><strong>Set Difficulty:</strong> Pick Easy, Medium, or Hard.</li>
+          <li>
+            <strong>Color the Nodes:</strong> Assign two colors to nodes,
+            ensuring no two connected nodes share the same color.
+          </li>
+          <li>
+            <strong>Submit Answer:</strong> Choose Yes or No for bipartite, then
+            click Submit.
+          </li>
+          <li>
+            <strong>Get Feedback:</strong> Check if your answer is correct.
+          </li>
+          <li>
+            <strong>Track Progress:</strong> Completing one graph from each difficulty(easy, medium and hard) adds progress:
+            Easy (+33%), Medium (+33%), Hard (+34%).
+          </li>
+          <li>
+            <strong>Submit/Reset:</strong> Submit the graph to update
+            progress, or reset the game to start over.
+          </li>
+        </ul>
+        <p><strong>Tips:</strong></p>
+        <ul>
+          <li>
+            Look for Odd Cycles: If there’s an odd-length cycle (e.g., a
+            triangle), it’s not bipartite.
+          </li>
+          <li>Experiment with different graphs to improve your skills.</li>
+          <li>Use node coloring to help verify your answer.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h1 class="h1">Bipartite Graph Game</h1>
+    <div class="container">
+      <div class="progress-circle" id="progress-circle" style="--progress: 0">
+        <span id="progress-text">0%</span>
+      </div>
+      <div class="button-container">
+        <button onclick="updateProgress()">Submit Graph</button>
+        <button onclick="resetProgress()">Reset Progress</button>
+      </div>
+
+      <!-- Difficulty Buttons -->
+      <div class="controls">
+        <label for="difficultyDropdown">Select Difficulty:</label>
+        <select id="difficultyDropdown">
+          <option value="easy" selected>Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <label>
+          <input type="radio" name="graph" value="0" onclick="changeGraph(0)" />
+          Graph 1
+        </label>
+        <label>
+          <input type="radio" name="graph" value="1" onclick="changeGraph(1)" />
+          Graph 2
+        </label>
+        <label>
+          <input type="radio" name="graph" value="2" onclick="changeGraph(2)" />
+          Graph 3
+        </label>
+      </div>
+
+      <!-- Graph Selection -->
+      <div class="graph-box">
+        <!-- Canvas for Graph -->
+        <svg id="graphCanvas" width="800" height="600"></svg>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <label for="color1">Color 1:</label>
+        <input type="color" id="color1" value="#ff0000" />
+
+        <label for="color2">Color 2:</label>
+        <input type="color" id="color2" value="#0000ff" />
+
+        <select id="bipartiteDropdown">
+          <option value="" disabled selected>Is the graph bipartite?</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+
+        <button id="submitAnswer">Submit Answer</button>
+        <button id="resetButton">Reset</button>
+      </div>
+
+      <p id="feedback"></p>
+    </div>
+
+    <div class="navigate">
+      <button class="button navlink">
+        <a
+          title="Click to go back to home page"
+          class="navlink"
+          href="../navigate.html"
+          >Home Page</a
+        >
+      </button>
+    </div>
+
+    <script>
+      const svg = document.getElementById("graphCanvas");
+      const color1Picker = document.getElementById("color1");
+      const color2Picker = document.getElementById("color2");
+      const dropdown = document.getElementById("bipartiteDropdown");
+      const feedback = document.getElementById("feedback");
+      const resetButton = document.getElementById("resetButton");
+      const submitAnswerButton = document.getElementById("submitAnswer");
+      const difficultyDropdown = document.getElementById("difficultyDropdown");
+      const graphRadios = document.querySelectorAll("input[name='graph']");
+
+      let nodes = [];
+      let edges = [];
+
+      const graphs = {
+        easy: [
+          {
+            nodes: [
+              { x: 200, y: 150 },
+              { x: 400, y: 150 },
+            ],
+            edges: [[0, 1]],
+            isBipartite: true,
+          },
+          {
+            nodes: [
+              { x: 200, y: 150 },
+              { x: 400, y: 150 },
+              { x: 300, y: 300 },
+            ],
+            edges: [
+              [0, 1],
+              [1, 2],
+              [2, 1],
+            ],
+            isBipartite: true,
+          },
+          {
+            nodes: [
+              { x: 300, y: 100 },
+              { x: 500, y: 100 },
+              { x: 400, y: 300 },
+            ],
+            edges: [
+              [0, 1],
+              [1, 2],
+              [2, 0],
+            ],
+            isBipartite: false,
+          },
+        ],
+        medium: [
+          {
+            nodes: [
+              { x: 200, y: 100 },
+              { x: 400, y: 100 },
+              { x: 300, y: 300 },
+              { x: 500, y: 300 },
+            ],
+            edges: [
+              [0, 2],
+
+              [0, 1],
+              [2, 3],
+            ],
+            isBipartite: true,
+          },
+          {
+            nodes: [
+              { x: 100, y: 100 },
+              { x: 300, y: 100 },
+              { x: 200, y: 300 },
+              { x: 400, y: 300 },
+            ],
+            edges: [
+              [0, 2],
+              [1, 3],
+              [2, 3],
+              [0, 1],
+            ],
+            isBipartite: true,
+          },
+          {
+            nodes: [
+              { x: 200, y: 150 },
+              { x: 400, y: 150 },
+              { x: 600, y: 300 },
+              { x: 300, y: 300 },
+            ],
+            edges: [
+              [0, 3],
+              [1, 2],
+              [0, 1],
+
+              [3, 1],
+            ],
+            isBipartite: false,
+          },
+        ],
+        hard: [
+          {
+            nodes: [
+              { x: 100, y: 100 },
+              { x: 300, y: 100 },
+              { x: 500, y: 100 },
+              { x: 200, y: 300 },
+              { x: 400, y: 300 },
+            ],
+            edges: [
+              [0, 3],
+              [1, 3],
+              [1, 4],
+              [2, 4],
+              [0, 1],
+              [1, 2],
+            ],
+            isBipartite: false,
+          },
+          {
+            nodes: [
+              { x: 200, y: 150 },
+              { x: 400, y: 150 },
+              { x: 300, y: 300 },
+              { x: 500, y: 300 },
+              { x: 600, y: 400 },
+            ],
+            edges: [
+              [0, 1],
+              [1, 2],
+              [2, 3],
+              [3, 4],
+              [0, 2],
+              [1, 3],
+            ],
+            isBipartite: false,
+          },
+          {
+            nodes: [
+              { x: 100, y: 100 },
+              { x: 300, y: 100 },
+              { x: 500, y: 100 },
+              { x: 300, y: 300 },
+              { x: 500, y: 300 },
+            ],
+            edges: [
+              [0, 1],
+              [1, 2],
+              [0, 3],
+              [1, 3],
+              [2, 4],
+              [3, 4],
+            ],
+            isBipartite: false,
+          },
+        ],
+      };
+
+      function loadGraph(difficulty) {
+        const selectedGraph =
+          graphs[difficulty][
+            Math.floor(Math.random() * graphs[difficulty].length)
+          ];
+        nodes = selectedGraph.nodes;
+        edges = selectedGraph.edges;
+        drawGraph();
+      }
+
+      function changeGraph(graphIndex) {
+        const difficulty = difficultyDropdown.value;
+        const selectedGraph = graphs[difficulty][graphIndex];
+
+        if (!selectedGraph) {
+          console.error(
+            "Graph not found for the selected index and difficulty."
+          );
+          return;
+        }
+
+        nodes = selectedGraph.nodes;
+        edges = selectedGraph.edges;
+        dropdown.dataset.correctAnswer = selectedGraph.isBipartite
+          ? "yes"
+          : "no";
+
+        drawGraph();
+      }
+
+      function drawGraph() {
+        svg.innerHTML = ""; // Clear existing graph
+
+        // Draw edges
+        edges.forEach(([start, end]) => {
+          const edge = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          edge.setAttribute("x1", nodes[start].x);
+          edge.setAttribute("y1", nodes[start].y);
+          edge.setAttribute("x2", nodes[end].x);
+          edge.setAttribute("y2", nodes[end].y);
+          edge.setAttribute("stroke", "black");
+          edge.setAttribute("stroke-width", 2);
+          edge.setAttribute("class", "edge");
+          svg.appendChild(edge);
+        });
+
+        // Draw nodes
+        nodes.forEach((node, index) => {
+          const circle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          circle.setAttribute("cx", node.x);
+          circle.setAttribute("cy", node.y);
+          circle.setAttribute("r", 10);
+          circle.setAttribute("fill", "white");
+          circle.setAttribute("stroke", "black");
+          circle.setAttribute("stroke-width", 2);
+          circle.setAttribute("class", "node");
+          circle.addEventListener("click", () => {
+            const color =
+              index % 2 === 0 ? color1Picker.value : color2Picker.value;
+            circle.setAttribute("fill", color);
+          });
+          svg.appendChild(circle);
+        });
+      }
+
+      function loadGraph(difficulty) {
+        const graph =
+          graphs[difficulty][
+            Math.floor(Math.random() * graphs[difficulty].length)
+          ];
+        nodes = graph.nodes;
+        edges = graph.edges;
+        dropdown.dataset.correctAnswer = graph.isBipartite ? "yes" : "no";
+        drawGraph();
+      }
+
+      difficultyDropdown.addEventListener("change", (e) => {
+        const difficulty = e.target.value;
+
+        // Reset graph selection and load the first graph of the new difficulty level
+        graphRadios.forEach((radio, index) => {
+          radio.checked = index === 0; // Select the first graph by default
+        });
+
+        changeGraph(0); // Load the first graph for the selected difficulty
+        feedback.textContent = "";
+        dropdown.value = "";
+      });
+
+      graphRadios.forEach((radio, index) => {
+        radio.addEventListener("change", () => {
+          changeGraph(index); // Load the graph corresponding to the selected radio button
+        });
+      });
+
+      resetButton.addEventListener("click", () => {
+        feedback.textContent = "";
+
+        // Reset radio buttons and reload the first graph
+        graphRadios.forEach((radio, index) => {
+          radio.checked = index === 0;
+        });
+
+        changeGraph(0);
+      });
+
+      submitAnswerButton.addEventListener("click", () => {
+        const userAnswer = dropdown.value;
+        const correctAnswer = dropdown.dataset.correctAnswer;
+
+        if (userAnswer === correctAnswer) {
+          feedback.textContent = "Correct!";
+          feedback.style.color = "white";
+          progress[currentDifficulty] = true;
+          updateProgress();
+        } else {
+          feedback.textContent = "Incorrect, try again!";
+          feedback.style.color = "white";
+        }
+      });
+
+      function showOverlay() {
+        document.getElementById("helpOverlay").style.display = "flex";
+      }
+
+      function hideOverlay(event) {
+        if (event.target.id === "helpOverlay") {
+          document.getElementById("helpOverlay").style.display = "none";
+        }
+      }
+
+      let progress = 0;
+      const progressCircle = document.getElementById("progress-circle");
+      const progressText = document.getElementById("progress-text");
+
+      function updateProgress() {
+        if (progress < 100) {
+          progress += 33.33; // Increase by one-third (3 graphs total)
+          if (progress > 100) progress = 100; // Ensure it doesn't exceed 100%
+          progressCircle.style.setProperty("--progress", progress);
+          progressText.textContent = Math.round(progress) + "%";
+        }
+      }
+
+      function resetProgress() {
+        progress = 0;
+        progressCircle.style.setProperty("--progress", progress);
+        progressText.textContent = "0%";
+      }
+
+      loadGraph("easy"); // Load initial graph
+    </script>
+  </body>
+</html>
