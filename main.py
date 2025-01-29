@@ -128,4 +128,7 @@ async def serve_navigation_page():
 async def serve_isomorphism_page():
     return FileResponse("static/isomorphism.html")
 
+@app.get("/euler")
+async def serve_isomorphism_page():
+    return FileResponse("static/euler_path/frontend/index.html")
 
