@@ -116,6 +116,3 @@ def check_solution(solution: EulerPathSolution):
     
     raise HTTPException(status_code=404, detail="Problem description not found")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
