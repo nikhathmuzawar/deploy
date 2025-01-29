@@ -13,7 +13,8 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/main.py"
+      "dest": "main.py"
     }
-  ]
+  ],
+  "cleanUrls": true
 }
