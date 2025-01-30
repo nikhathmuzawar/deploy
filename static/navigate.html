@@ -64,21 +64,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .progress {
-            background-color: var(--textcolor);
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-bar {
-            background-color: var(--bgcolor);
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s;
-        }
-
         .video-player {
             width: 25%;
             height: 125px;
@@ -97,7 +82,6 @@
             border-radius: 12px;
         }
 
-        /* Expanded video player */
         .video-player.expanded {
             width: 75%;
             height: 60vh;
@@ -106,14 +90,6 @@
             left: 10%;
             z-index: 1000;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .selected-game {
-            background-color: var(--textcolor);
-            color: var(--bgcolor);
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
         }
 
         button {
@@ -140,13 +116,6 @@
         <p>Name: Player 1</p>
         <p>Level: Intermediate</p>
 
-        <h3>Progress</h3>
-        <div class="progress">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-        <p id="progress-text">0% Completed</p>
-        <button onclick="resetProgress()">Reset Progress</button>
-        
         <div class="about-us">
             <h2>About Us</h2>
             <div class="video-player" id="video-player">
@@ -167,67 +136,31 @@
 
     <script>
         const games = [
-        { id: 1, name: "Quiz", description: "Test your knowledge with this fun quiz.", url: "quiz/index.html" },
-        { id: 2, name: "Hamilton Path", description: "Find paths that visit every vertex exactly once.", url: "Hamilton Path/index.html" },
-        { id: 3, name: "Euler Path", description: "Trace paths that use every edge exactly once.", url: "euler_path/frontend/index.html" },
-        { id: 4, name: "Bipartite Graph", description: "Determine if the graph is bipartite.", url: "Bipartite-graph/game2.html" },
-        { id: 5, name: "Isomorphism", description: "Check if two graphs are isomorphic.", url: "isomorphism.html" },
-        { id: 6, name: "Directed-Graph", description: "Check if graph is directed or not.", url: "Directed-graph/directed.html" }
-    ];
+            { id: 1, name: "Quiz", description: "Test your knowledge with this fun quiz.", url: "quiz/index.html" },
+            { id: 2, name: "Hamilton Path", description: "Find paths that visit every vertex exactly once.", url: "Hamilton_Path/index.html" },
+            { id: 3, name: "Euler Path", description: "Trace paths that use every edge exactly once.", url: "euler_path/frontend/index.html" },
+            { id: 4, name: "Bipartite Graph", description: "Determine if the graph is bipartite.", url: "Bipartite-graph/game2.html" },
+            { id: 5, name: "Isomorphism", description: "Check if two graphs are isomorphic.", url: "isomorphism.html" },
+            { id: 6, name: "Directed-Graph", description: "Check if graph is directed or not.", url: "Directed-graph/directed.html" }
+        ];
     
-    const gamesContainer = document.getElementById('games-container');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
+        const gamesContainer = document.getElementById('games-container');
     
-    let progress = localStorage.getItem('progress') ? parseInt(localStorage.getItem('progress')) : 0;
-    let completedGames = localStorage.getItem('completedGames')
-        ? JSON.parse(localStorage.getItem('completedGames'))
-        : [];
+        games.forEach(game => {
+            const gameCard = document.createElement('div');
+            gameCard.className = 'game-card';
+            gameCard.innerHTML = `
+                <h2>${game.name}</h2>
+                <p>${game.description}</p>
+            `;
+            gameCard.addEventListener('click', () => window.location.href = game.url);
+            gamesContainer.appendChild(gameCard);
+        });
     
-    progressBar.style.width = `${progress}%`;
-    progressText.textContent = `${progress}% Completed`;
-    
-    games.forEach(game => {
-        const gameCard = document.createElement('div');
-        gameCard.className = 'game-card';
-        gameCard.innerHTML = `
-            <h2>${game.name}</h2>
-            <p>${game.description}</p>
-        `;
-        gameCard.addEventListener('click', () => selectGame(game));
-        gamesContainer.appendChild(gameCard);
-    });
-    
-    function selectGame(game) {
-        if (!completedGames.includes(game.id)) {
-            completedGames.push(game.id);
-            
-            // Increase progress by 20% for Quiz, otherwise by 16%
-            progress = Math.min(progress + (game.name === "Quiz" ? 20 : 16), 100);
-            
-            progressBar.style.width = `${progress}%`;
-            progressText.textContent = `${progress}% Completed`;
-            localStorage.setItem('progress', progress);
-            localStorage.setItem('completedGames', JSON.stringify(completedGames));
-        }
-        window.location.href = game.url;
-    }
-    
-    function resetProgress() {
-        progress = 0;
-        completedGames = [];
-        progressBar.style.width = `${progress}%`;
-        progressText.textContent = `${progress}% Completed`;
-        localStorage.removeItem('progress');
-        localStorage.removeItem('completedGames');
-    }
-    
-    // Video player expanded functionality
-    const videoPlayer = document.getElementById('video-player');
-    videoPlayer.addEventListener('click', () => {
-        videoPlayer.classList.toggle('expanded');
-    });
-    
+        const videoPlayer = document.getElementById('video-player');
+        videoPlayer.addEventListener('click', () => {
+            videoPlayer.classList.toggle('expanded');
+        });
     </script>
 
 </body>

@@ -67,10 +67,10 @@ label {
 
 select,
 input[type="text"] {
-    width: 100%;
+    width: 97%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ddd;
+    border: 2px solid #769165;
     color: #3e4c35;
     text-align: center;
     border-radius: 5px;
@@ -101,7 +101,7 @@ button:hover {
 }
 
 #graph-container {
-    border: 4px solid #f308cf;
+    border: 2px solid #a5622d;
     background-color: #111;
     border-radius: 20px;
     margin-bottom: 20px;
@@ -147,4 +147,3 @@ button:hover {
     color: #ffe7d3;
     z-index: 1;
 }
-
