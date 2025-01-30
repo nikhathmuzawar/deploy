@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:8000';
+const baseUrl = 'https://deploy-five-plum.vercel.app/';
 
 // Cytoscape instance for graph visualization
 let cy = null;
