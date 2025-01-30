@@ -116,9 +116,7 @@ def check_solution(solution: EulerPathSolution):
     
     raise HTTPException(status_code=404, detail="Problem description not found")
 
-@app.get("/login")
-async def serve_login_page():
-    return FileResponse("static/login.html")
+
 
 @app.get("/navigate")
 async def serve_navigation_page():
