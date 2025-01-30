@@ -8,6 +8,7 @@ from passlib.context import CryptContext
 import random
 import json
 import os
+from pathlib import Path
 
 app = FastAPI()
 
@@ -20,7 +21,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-# Serve static files (HTML, CSS, JS)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
@@ -76,10 +76,32 @@ async def register(user_data: UserLogin):
     users_collection.insert_one(new_user)
     return {"message": "User registered successfully"}
 
-# Load Euler problems from the JSON file
-euler_problem_file_path = os.path.join(os.path.dirname(__file__), 'static','euler_path', 'backend', 'euler_problem.json')
-with open(euler_problem_file_path, 'r') as file:
-    euler_problems = json.load(file)["eulerPathProblems"]
+# Get the project root directory
+project_root = Path(__file__).parent
+
+# Construct the absolute path to the JSON file
+euler_problem_file_path = project_root /'static' / 'euler_path' / 'backend' / 'euler_problem.json'
+
+try:
+    # Print the full path for debugging
+    print(f"Attempting to read file from: {euler_problem_file_path}")
+    
+    # Read the JSON file
+    with open(euler_problem_file_path, 'r') as file:
+        euler_problems = json.load(file)["eulerPathProblems"]
+        
+    # Print loaded problems for debugging
+    print(f"Successfully loaded {len(euler_problems)} difficulty levels")
+    
+except FileNotFoundError:
+    print(f"Error: Could not find file at {euler_problem_file_path}")
+    raise
+except json.JSONDecodeError:
+    print(f"Error: Invalid JSON format in {euler_problem_file_path}")
+    raise
+except Exception as e:
+    print(f"Unexpected error: {str(e)}")
+    raise
 
 class EulerPathRequest(BaseModel):
     level: str
@@ -115,18 +137,4 @@ def check_solution(solution: EulerPathSolution):
                 return {"correct": False}
     
     raise HTTPException(status_code=404, detail="Problem description not found")
-
-
-
-@app.get("/navigate")
-async def serve_navigation_page():
-    return FileResponse("static/navigate.html")
-
-@app.get("/isomorphism")
-async def serve_isomorphism_page():
-    return FileResponse("static/isomorphism.html")
-
-@app.get("/euler")
-async def serve_isomorphism_page():
-    return FileResponse("static/euler_path/frontend/index.html")
 

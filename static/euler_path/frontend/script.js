@@ -6,51 +6,64 @@ let incorrectAttempts = 0;  // Track the number of incorrect attempts
 let currentSolution = [];   // Store the correct solution for the current problem
 let progress = { easy: false, medium: false, hard: false };
 
+// Add timestamp to prevent caching
+function getFetchOptions(data) {
+    return {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify({ ...data, timestamp: Date.now() })
+    };
+}
+
 document.getElementById('fetch-problem').addEventListener('click', async () => {
     const difficulty = document.getElementById('difficulty').value;
 
     try {
-        const response = await fetch(`${baseUrl}/get_problem`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ level: difficulty })
-        });
+        // Clear existing graph data
+        if (cy) {
+            cy.destroy();
+            cy = null;
+        }
+        currentSolution = [];
+        
+        const response = await fetch(`${baseUrl}/get_problem`, getFetchOptions({ level: difficulty }));
 
         if (!response.ok) throw new Error('Failed to fetch problem.');
 
         const problem = await response.json();
-        console.log("Fetched Problem:", problem); // Debugging log
+        console.log("New Problem Fetched:", problem); // Debugging log
 
         document.getElementById('problem-description').textContent = problem.description;
-
-        // Get the graph data
         const graphData = problem.graph;
 
-        // Log the graph data to ensure it's correctly fetched
-        console.log("Graph Data:", graphData);
-
-        // Ensure graphData is valid
+        // Ensure graphData is valid and new
         if (!graphData || !graphData.vertices || !graphData.edges) {
             throw new Error('Invalid graph data.');
         }
 
+        console.log("Creating new graph with data:", graphData); // Debugging log
+
         const nodes = graphData.vertices.map(v => ({ data: { id: v } }));
         const edges = graphData.edges.map(e => ({ data: { source: e[0], target: e[1] } }));
-
-        // Store the correct solution for comparison later
         currentSolution = graphData.solution;
 
-        // Create the Cytoscape graph
+        // Clear graph container
+        document.getElementById('graph-container').innerHTML = '';
+        
+        // Create new graph
         createCytoscapeGraph(nodes, edges, graphData.startVertex);
 
-        // Show the problem section
+        // Reset UI state
         document.getElementById('problem-section').classList.remove('hidden');
-        document.getElementById('result-message').textContent = '';  // Clear result message
-        document.getElementById('new-problem').classList.add('hidden'); // Hide "Try Another Problem" button
-        incorrectAttempts = 0;  // Reset incorrect attempt counter
-        document.getElementById('solution-input').value = '';  // Clear the solution input field
+        document.getElementById('result-message').textContent = '';
+        document.getElementById('new-problem').classList.add('hidden');
+        incorrectAttempts = 0;
+        document.getElementById('solution-input').value = '';
     } catch (error) {
-        console.error('Error fetching problem:', error); // Log errors for debugging
+        console.error('Error fetching problem:', error);
         alert('Error fetching problem: ' + error.message);
     }
 });

@@ -1,79 +1,81 @@
-
 {
     "eulerPathProblems": {
         "easy": [
             {
-                "description": "Find an Euler path in this simple graph",
+                "description": "Find an Euler path in this simple path graph",
                 "graph": {
                     "vertices": ["A", "B", "C", "D"],
                     "edges": [
-                        ["A", "B"], ["B", "C"], ["C", "D"], ["D", "A"]
+                        ["A", "B"], ["B", "C"], ["C", "D"]
                     ],
                     "startVertex": "A",
-                    "solution": ["A", "B", "C", "D", "A"]
+                    "solution": ["A", "B", "C", "D"]
                 }
             },
             {
-                "description": "Find an Euler path in this triangle-like graph",
+                "description": "Find an Euler path in this house-shaped graph",
                 "graph": {
-                    "vertices": ["X", "Y", "Z"],
+                    "vertices": ["P", "Q", "R", "S"],
                     "edges": [
-                        ["X", "Y"], ["Y", "Z"], ["Z", "X"]
+                        ["P", "Q"], ["Q", "R"], ["R", "S"],  ["Q", "S"]
                     ],
-                    "startVertex": "X",
-                    "solution": ["X", "Y", "Z", "X"]
+                    "startVertex": "P",
+                    "solution": ["P", "Q", "S", "R", "Q"]
                 }
             }
         ],
         "medium": [
             {
-                "description": "Find an Euler path in this bridge-like graph",
+                "description": "Find an Euler path in this butterfly graph",
                 "graph": {
-                    "vertices": ["P", "Q", "R", "S", "T"],
+                    "vertices": ["W", "X", "Y", "Z"],
                     "edges": [
-                        ["P", "Q"], ["Q", "R"], ["R", "S"], ["S", "T"], ["Q", "S"], ["P", "T"]
+                        ["W", "X"], ["X", "Y"], ["Y", "Z"], ["X", "Z"]
                     ],
-                    "startVertex": "P",
-                    "solution": ["P", "Q", "R", "S", "T", "P"]
+                    "startVertex": "W",
+                    "solution": ["W", "X", "Y", "Z", "X"]
                 }
             },
             {
-                "description": "Find an Euler path in this square with diagonals",
+                "description": "Find an Euler path in this ladder graph",
                 "graph": {
-                    "vertices": ["M", "N", "O", "P"],
+                    "vertices": ["1", "2", "3", "4", "5", "6"],
                     "edges": [
-                        ["M", "N"], ["N", "O"], ["O", "P"], ["P", "M"], ["M", "O"], ["N", "P"]
+                        ["1", "2"], ["2", "3"], ["4", "5"], ["5", "6"],
+                        ["1", "4"],  ["3", "6"]
                     ],
-                    "startVertex": "M",
-                    "solution": ["M", "N", "O", "P", "M"]
+                    "startVertex": "1",
+                    "solution": ["1", "2", "3", "6", "5", "4", "1"]
                 }
             }
         ],
         "hard": [
             {
-                "description": "Find an Euler path in this complex graph",
-                "graph": {
-                    "vertices": ["1", "2", "3", "4", "5", "6"],
-                    "edges": [
-                        ["1", "2"], ["2", "3"], ["3", "4"], ["4", "5"], ["5", "6"], ["6", "1"],
-                        ["2", "5"], ["3", "6"], ["1", "4"]
-                    ],
-                    "startVertex": "1",
-                    "solution": ["1", "2", "3", "4", "5", "6", "1"]
-                }
-            },
-            {
-                "description": "Find an Euler path in this complete graph",
+                "description": "Find an Euler path in this modified complete graph",
                 "graph": {
                     "vertices": ["A", "B", "C", "D", "E"],
                     "edges": [
-                        ["A", "B"], ["B", "C"], ["C", "D"], ["D", "E"], ["E", "A"],
-                        ["A", "C"], ["B", "D"], ["C", "E"], ["D", "A"], ["E", "B"]
+                        ["A", "B"], ["B", "C"], ["C", "D"], ["D", "E"],
+                        ["A", "C"], ["B", "D"], ["C", "E"],
+                        ["A", "D"], ["B", "E"]
                     ],
                     "startVertex": "A",
-                    "solution": ["A", "B", "C", "D", "E", "A"]
+                    "solution": ["A", "B", "C", "D", "E", "B", "D", "A", "C", "E"]
                 }
-            }
+            },
+            {
+                "description": "Find an Euler path in this complete graph with two odd-degree vertices",
+                "graph": {
+                    "vertices": ["A", "B", "C", "D", "E"],
+                    "edges": [
+                        ["A", "B"], ["B", "C"], ["D", "E"], ["E", "A"],
+                        ["A", "C"], ["B", "D"]
+                    ],
+                    "startVertex": "A",
+                    "solution": ["A", "B", "D", "E", "A", "C","B"]
+                }
+            }     
+
         ]
     }
-}
+}   
